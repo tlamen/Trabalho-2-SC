@@ -36,10 +36,31 @@ def add_round_key(text_matrix, key_matrix):
 # Retorna um array com 11 matrizes 4x4 representando as sub-chaves
 def key_expansion(key):
     sub_keys = []
+    words = []
     init_round_key = get_bytes(key)[0]
     sub_keys.append(init_round_key)
-
+    for i in range(4):
+        column = []
+        for j in range(4):
+            column.append(init_round_key[j][i])
+        words.append(column)
     
+    for i in range(4, 44):
+        temp = words[i-1]
+        if (i % 4 == 0):
+            temp = SubWord (RotWord(temp)) ^ Rcon[i/4]
+        words.append( words[i-4] ^ temp)
+
+        
+def SubWord():
+    pass
+
+
+def RotWord():
+    pass
+
+def Rcon():
+    pass
 
 key = input("key: ")
 while len(key) != 16:
@@ -47,13 +68,15 @@ while len(key) != 16:
 
 
 
-keys = key_expansion(key)
+# keys = key_expansion(key)
 
 
 
 # Testes pra saber se o add_round_key e get_bytes funcionam
-key = get_bytes(key)[0] # Initial round key
-text = get_bytes(text)
-print(key)
-print(text[0])
-print(add_round_key(text[0], key))
+# key = get_bytes(key)[0] # Initial round key
+# text = get_bytes(text)
+# print(key)
+# print(text[0])
+# print(add_round_key(text[0], key))
+
+key_expansion(key)
