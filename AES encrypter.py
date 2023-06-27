@@ -88,14 +88,23 @@ def key_expansion(key):
         words.append( words[i-4] ^ temp)
 
         
-# Função de substituição de matrix
-# Recebe a matrix a ser substituida
-# Retorna uma nova matrix
+# Função de substituição de matriz
+# Recebe a matriz a ser substituida
+# Retorna uma nova matriz com os valores corresppondentes na S_BOX
 def SubBytes(matrix):
+    new = []
     for i in range(4):
+        column = []
         for j in range(4):
-            print(hex(matrix[i][j])[2:4], S_BOX[hex(matrix[i][j])[2:4]])
+            column.append(S_BOX[hex(matrix[i][j])[2:4]])
+        new.append(column)
+    return new
 
+# Função de mudança de linhas de matriz
+# Recebe uma matriz
+# Retorna uma nova matriz, com as linhas permutadas adequadamente segundo o algoritmo 
+def ShiftRows(matrix):
+    pass
 
 def RotWord():
     pass
@@ -116,5 +125,5 @@ while len(key) != 16:
 # Testes pra saber se o add_round_key e get_bytes funcionam
 key = get_bytes(key)[0] # Initial round key
 text = get_bytes(text)
-SubBytes(text[0])
+print(SubBytes(text[0]))
 
