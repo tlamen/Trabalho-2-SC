@@ -1,4 +1,4 @@
-text = input("")
+text = input("plain text: ")
 
 # Função para pegar os estados de entrada de um texto
 # Recebe o texto em string
@@ -19,5 +19,41 @@ def get_bytes(texto):
 
     return matrices
 
-print(get_bytes(text))
+# Função que executa um XOR bit a bit entre 2 matrizes 4x4
+# Recebe duas matrizes 4x4
+# Retorna uma matriz 4x4
+def add_round_key(text_matrix, key_matrix):
+    state = []
+    for i in range(4):
+        row = []
+        for j in range(4):
+            row.append(text_matrix[i][j] ^ key_matrix[i][j])
+        state.append(row)
+    return state
 
+# Função que gera um array com 11 sub-chaves 
+# Recebe a chave como string
+# Retorna um array com 11 matrizes 4x4 representando as sub-chaves
+def key_expansion(key):
+    sub_keys = []
+    init_round_key = get_bytes(key)[0]
+    sub_keys.append(init_round_key)
+
+    
+
+key = input("key: ")
+while len(key) != 16:
+    key = input("key: ")
+
+
+
+keys = key_expansion(key)
+
+
+
+# Testes pra saber se o add_round_key e get_bytes funcionam
+key = get_bytes(key)[0] # Initial round key
+text = get_bytes(text)
+print(key)
+print(text[0])
+print(add_round_key(text[0], key))
