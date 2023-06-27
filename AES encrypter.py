@@ -104,7 +104,32 @@ def SubBytes(matrix):
 # Recebe uma matriz
 # Retorna uma nova matriz, com as linhas permutadas adequadamente segundo o algoritmo 
 def ShiftRows(matrix):
-    pass
+    new = []
+
+    # Primeira linha se mantém
+    new.append(matrix[0])
+    
+    # Deslocamento da segunda linha
+    temp_matrix = matrix[1]
+    temp_char = temp_matrix.pop(0)
+    temp_matrix.append(temp_char)
+    new.append(temp_matrix)
+
+    # Deslocamento da terceira linha
+    temp_matrix = matrix[2]
+    temp_char = temp_matrix.pop(0)
+    temp_matrix.append(temp_char)
+    temp_char = temp_matrix.pop(0)
+    temp_matrix.append(temp_char)
+    new.append(temp_matrix)
+
+    # Deslocamento da quarta linha
+    temp_matrix = matrix[3]
+    temp_char = temp_matrix.pop()
+    temp_matrix.insert(0, temp_char)
+    new.append(temp_matrix)
+
+    return new
 
 def RotWord():
     pass
@@ -125,5 +150,6 @@ while len(key) != 16:
 # Testes pra saber se o add_round_key e get_bytes funcionam
 key = get_bytes(key)[0] # Initial round key
 text = get_bytes(text)
-print(SubBytes(text[0]))
+print(text[0])
+print(ShiftRows(text[0]))
 
