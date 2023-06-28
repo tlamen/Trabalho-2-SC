@@ -1,8 +1,6 @@
-text = input("plain text: ")
-
 S_BOX = {
-    "00": "63", "01": "7c", "02": "77", "03": "7b", "04": "f2", "05": "6b", "06": "6f", "07": "c5",
-    "08": "30", "09": "01", "0a": "67", "0b": "2b", "0c": "fe", "0d": "d7", "0e": "ab", "0f": "76",
+    "0": "63", "1": "7c", "02": "77", "3": "7b", "4": "f2", "5": "6b", "6": "6f", "7": "c5",
+    "8": "30", "9": "01", "a": "67", "b": "2b", "c": "fe", "d": "d7", "e": "ab", "f": "76",
     "10": "ca", "11": "82", "12": "c9", "13": "7d", "14": "fa", "15": "59", "16": "47", "17": "f0",
     "18": "ad", "19": "d4", "1a": "a2", "1b": "af", "1c": "9c", "1d": "a4", "1e": "72", "1f": "c0",
     "20": "b7", "21": "fd", "22": "93", "23": "26", "24": "36", "25": "3f", "26": "f7", "27": "cc",
@@ -67,11 +65,18 @@ def add_round_key(text_matrix, key_matrix):
         state.append(row)
     return state
 
+def wordXOR(word1, word2):
+    new = []
+    for i in range(4):
+        print(word1[i], " XOR ", word2[i], " = ", int(word1[i]) ^ int(word2[i]))
+        new.append(int(word1[i]) ^ int(word2[i]))
+    return new
+
 # Função que gera um array com 11 sub-chaves 
 # Recebe a chave como string
 # Retorna um array com 11 matrizes 4x4 representando as sub-chaves
 def key_expansion(key):
-    Rcon = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+    Rcon = [0, 1, 2, 4, 8, 16, 32, 64, 128, 27, 36]
     sub_keys = []
     words = []
     init_round_key = get_bytes(key)[0]
@@ -81,16 +86,25 @@ def key_expansion(key):
         for j in range(4):
             column.append(init_round_key[j][i])
         words.append(column)
-    
-    print(words)
 
     for i in range(4, 44):
         temp = words[i-1]
         if (i % 4 == 0):
-            temp = KeySubBytes(RotWord(temp)) 
-            print(temp[0], Rcon[int(i / 4)]) 
+            temp = KeySubBytes(RotWord(temp))
             temp[0] = temp[0] ^ Rcon[int(i / 4)]
-        words.append( words[i-4] ^ temp)
+        words.append(wordXOR(words[i-4], temp))
+    
+    for j in range(4, len(words), 4):
+        temp = []
+
+        temp.append([words[j][0], words[j+1][0], words[j+2][0], words[j+3][0]])
+        temp.append([words[j][1], words[j+1][1], words[j+2][1], words[j+3][1]])
+        temp.append([words[j][2], words[j+1][2], words[j+2][2], words[j+3][2]])
+        temp.append([words[j][3], words[j+1][3], words[j+2][3], words[j+3][3]])
+
+        sub_keys.append(temp)
+
+    return sub_keys
 
 
 def RotWord(word):
@@ -101,7 +115,7 @@ def RotWord(word):
 def KeySubBytes(word):
     new = []
     for i in range(4):
-        new.append(S_BOX[hex(word[i])[2:4]])
+        new.append(int(S_BOX[hex(int(word[i]))[2:4]], 16))
     return new
         
 # Função de substituição de matriz
@@ -112,7 +126,7 @@ def SubBytes(matrix):
     for i in range(4):
         column = []
         for j in range(4):
-            column.append(S_BOX[hex(matrix[i][j])[2:4]])
+            column.append(int(S_BOX[hex(matrix[i][j])[2:4]], 16))
         new.append(column)
     return new
 
@@ -199,7 +213,10 @@ def doRound(text_matrix, key_matrix):
     temp = SubBytes(text_matrix)
     temp = ShiftRows(temp)
     temp = MixColumns(temp)
-    return add_round_key(tem, key_matrix)
+    return add_round_key(temp, key_matrix)
+
+
+text = input("plain text: ")
 
 key = input("key: ")
 while len(key) != 16:
@@ -209,7 +226,8 @@ while len(key) != 16:
 
 
 keys = key_expansion(key)
-print(keys)
+for i in range(len(keys)):
+    print("chave", i, ": ", keys[i])
 
 
 text = get_bytes(text)
