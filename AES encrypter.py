@@ -68,7 +68,6 @@ def add_round_key(text_matrix, key_matrix):
 def wordXOR(word1, word2):
     new = []
     for i in range(4):
-        print(word1[i], " XOR ", word2[i], " = ", int(word1[i]) ^ int(word2[i]))
         new.append(int(word1[i]) ^ int(word2[i]))
     return new
 
@@ -209,29 +208,45 @@ def MixColumns(matrix):
 
     return new
 
-def doRound(text_matrix, key_matrix):
-    temp = SubBytes(text_matrix)
-    temp = ShiftRows(temp)
-    temp = MixColumns(temp)
-    return add_round_key(temp, key_matrix)
+def encrypt(text_matrix, keys):
+    temp = add_round_key(text_matrix, keys[0])
+    for i in range(1, len(keys)):
+        temp = SubBytes(temp)
+        temp = ShiftRows(temp)
+        temp = MixColumns(temp)
+        temp = add_round_key(temp, keys[i])
+    return temp
+
+def to_text(matrixes):
+    s = ""
+    for matrix in matrixes:
+        for i in range(4):
+            for j in range(4):
+                s += chr(matrix[i][j])
+
+    return s
 
 
 text = input("plain text: ")
 
 key = input("key: ")
 while len(key) != 16:
-    key = input("key: ")
-
-
-
+    key = input("key (128 bits / 16 caracteres): ")
 
 keys = key_expansion(key)
-for i in range(len(keys)):
-    print("chave", i, ": ", keys[i])
-
 
 text = get_bytes(text)
-print(text)
+
+results = []
+for i in range(len(text)):
+    print(i)
+    results.append(encrypt(text[i], keys))
+
+print(results)
+
+print(to_text(results))
+
+
 
 # Testes pra saber se o add_round_key e get_bytes funcionam
 # key = get_bytes(key)[0] # Initial round key
