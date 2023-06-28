@@ -71,6 +71,7 @@ def add_round_key(text_matrix, key_matrix):
 # Recebe a chave como string
 # Retorna um array com 11 matrizes 4x4 representando as sub-chaves
 def key_expansion(key):
+    Rcon = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
     sub_keys = []
     words = []
     init_round_key = get_bytes(key)[0]
@@ -81,12 +82,27 @@ def key_expansion(key):
             column.append(init_round_key[j][i])
         words.append(column)
     
+    print(words)
+
     for i in range(4, 44):
         temp = words[i-1]
         if (i % 4 == 0):
-            temp = SubBytes (RotWord(temp)) ^ Rcon[i/4]
+            temp = KeySubBytes(RotWord(temp)) 
+            print(temp[0], Rcon[int(i / 4)]) 
+            temp[0] = temp[0] ^ Rcon[int(i / 4)]
         words.append( words[i-4] ^ temp)
 
+
+def RotWord(word):
+    temp = word.pop(0)
+    word.append(temp)
+    return word
+
+def KeySubBytes(word):
+    new = []
+    for i in range(4):
+        new.append(S_BOX[hex(word[i])[2:4]])
+    return new
         
 # Função de substituição de matriz
 # Recebe a matriz a ser substituida
@@ -131,11 +147,59 @@ def ShiftRows(matrix):
 
     return new
 
-def RotWord():
-    pass
+# Função de multiplicação no campo de galois - auxiliar para função MixColumns
+# Recebe dois números
+# Retiorna a multiplicação no campo de galois entre eles
+def gmul(a, b):
+    if b == 1:
+        return a
+    tmp = (a << 1) & 0xff
+    if b == 2:
+        return tmp if a < 128 else tmp ^ 0x1b
+    if b == 3:
+        return gmul(a, 2) ^ a
 
-def Rcon():
-    pass
+# Função de embaralhamento de colunas
+# Recebe uma matriz
+# Retorna uma nova matriz, com mudanças realizadas por coluna
+# 2 3 1 1
+# 1 2 3 1
+# 1 1 2 3 
+# 3 1 1 2
+def MixColumns(matrix):
+    new = [[], [], [], []]
+    
+    # Primeira coluna
+    new[0].append(gmul(matrix[0][0], 2) ^ gmul(matrix[1][0], 3) ^ gmul(matrix[2][0], 1) ^ gmul(matrix[3][0], 1))
+    new[1].append(gmul(matrix[0][0], 1) ^ gmul(matrix[1][0], 2) ^ gmul(matrix[2][0], 3) ^ gmul(matrix[3][0], 1))
+    new[2].append(gmul(matrix[0][0], 1) ^ gmul(matrix[1][0], 1) ^ gmul(matrix[2][0], 2) ^ gmul(matrix[3][0], 3))
+    new[3].append(gmul(matrix[0][0], 3) ^ gmul(matrix[1][0], 1) ^ gmul(matrix[2][0], 1) ^ gmul(matrix[3][0], 2))
+
+    # Segunda coluna
+    new[0].append(gmul(matrix[0][1], 2) ^ gmul(matrix[1][1], 3) ^ gmul(matrix[2][1], 1) ^ gmul(matrix[3][1], 1))
+    new[1].append(gmul(matrix[0][1], 1) ^ gmul(matrix[1][1], 2) ^ gmul(matrix[2][1], 3) ^ gmul(matrix[3][1], 1))
+    new[2].append(gmul(matrix[0][1], 1) ^ gmul(matrix[1][1], 1) ^ gmul(matrix[2][1], 2) ^ gmul(matrix[3][1], 3))
+    new[3].append(gmul(matrix[0][1], 3) ^ gmul(matrix[1][1], 1) ^ gmul(matrix[2][1], 1) ^ gmul(matrix[3][1], 2))
+
+    # Terceira coluna
+    new[0].append(gmul(matrix[0][2], 2) ^ gmul(matrix[1][2], 3) ^ gmul(matrix[2][2], 1) ^ gmul(matrix[3][2], 1))
+    new[1].append(gmul(matrix[0][2], 1) ^ gmul(matrix[1][2], 2) ^ gmul(matrix[2][2], 3) ^ gmul(matrix[3][2], 1))
+    new[2].append(gmul(matrix[0][2], 1) ^ gmul(matrix[1][2], 1) ^ gmul(matrix[2][2], 2) ^ gmul(matrix[3][2], 3))
+    new[3].append(gmul(matrix[0][2], 3) ^ gmul(matrix[1][2], 1) ^ gmul(matrix[2][2], 1) ^ gmul(matrix[3][2], 2))
+
+    # Quarta coluna
+    new[0].append(gmul(matrix[0][3], 2) ^ gmul(matrix[1][3], 3) ^ gmul(matrix[2][3], 1) ^ gmul(matrix[3][3], 1))
+    new[1].append(gmul(matrix[0][3], 1) ^ gmul(matrix[1][3], 2) ^ gmul(matrix[2][3], 3) ^ gmul(matrix[3][3], 1))
+    new[2].append(gmul(matrix[0][3], 1) ^ gmul(matrix[1][3], 1) ^ gmul(matrix[2][3], 2) ^ gmul(matrix[3][3], 3))
+    new[3].append(gmul(matrix[0][3], 3) ^ gmul(matrix[1][3], 1) ^ gmul(matrix[2][3], 1) ^ gmul(matrix[3][3], 2))
+
+    return new
+
+def doRound(text_matrix, key_matrix):
+    temp = SubBytes(text_matrix)
+    temp = ShiftRows(temp)
+    temp = MixColumns(temp)
+    return add_round_key(tem, key_matrix)
 
 key = input("key: ")
 while len(key) != 16:
@@ -143,13 +207,18 @@ while len(key) != 16:
 
 
 
-# keys = key_expansion(key)
+
+keys = key_expansion(key)
+print(keys)
 
 
+text = get_bytes(text)
+print(text)
 
 # Testes pra saber se o add_round_key e get_bytes funcionam
-key = get_bytes(key)[0] # Initial round key
-text = get_bytes(text)
-print(text[0])
-print(ShiftRows(text[0]))
+# key = get_bytes(key)[0] # Initial round key
+# text = get_bytes(text)
+# key_expansion(key)
+# print(text[0])
+# print(MixColumns(text[0]))
 
