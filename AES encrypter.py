@@ -1,3 +1,5 @@
+
+# S_BOX utilizada nas funções de substituição
 S_BOX = {
     "0": "63", "1": "7c", "02": "77", "3": "7b", "4": "f2", "5": "6b", "6": "6f", "7": "c5",
     "8": "30", "9": "01", "a": "67", "b": "2b", "c": "fe", "d": "d7", "e": "ab", "f": "76",
@@ -105,12 +107,17 @@ def key_expansion(key):
 
     return sub_keys
 
-
+# Função de rotação de palavras
+# Recebe uma palavra
+# retorna uma nova palavra, com os bytes rotacionados para a esquerda
 def RotWord(word):
     temp = word.pop(0)
     word.append(temp)
     return word
 
+# Função de substituição de palavra
+# Recebe uma palavra
+# Retorna uma nova palavra com os valores corresppondentes na S_BOX
 def KeySubBytes(word):
     new = []
     for i in range(4):
@@ -175,10 +182,6 @@ def gmul(a, b):
 # Função de embaralhamento de colunas
 # Recebe uma matriz
 # Retorna uma nova matriz, com mudanças realizadas por coluna
-# 2 3 1 1
-# 1 2 3 1
-# 1 1 2 3 
-# 3 1 1 2
 def MixColumns(matrix):
     new = [[], [], [], []]
     
@@ -208,6 +211,10 @@ def MixColumns(matrix):
 
     return new
 
+
+# Função de deciframento
+# Recebe uma matriz 4x4 do texto base e o conjunto de subchaves a ser utilizada
+# retorna uma matriz 4x4 criptografada
 def encrypt(text_matrix, keys):
     temp = add_round_key(text_matrix, keys[0])
     for i in range(1, len(keys)):
@@ -217,6 +224,9 @@ def encrypt(text_matrix, keys):
         temp = add_round_key(temp, keys[i])
     return temp
 
+# Função de conversão em texto
+# Recebe uma lista de matrizes 4x4
+# Retorna texto correspondente
 def to_text(matrixes):
     s = ""
     for matrix in matrixes:
