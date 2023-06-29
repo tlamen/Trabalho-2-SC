@@ -126,9 +126,9 @@ def KeySubBytes(word):
         new.append(int(S_BOX[hex(int(word[i]))[2:4]], 16))
     return new
         
-# Função de substituição de matriz
+# Função inversa de substituição de matriz
 # Recebe a matriz a ser substituida
-# Retorna uma nova matriz com os valores corresppondentes na S_BOX
+# Retorna uma nova matriz com os valores corresppondentes na INVERTED_S_BOX
 def InvSubBytes(matrix):
     new = []
     for i in range(4):
@@ -138,9 +138,9 @@ def InvSubBytes(matrix):
         new.append(column)
     return new
 
-# Função de mudança de linhas de matriz
+# Função inversa de mudança de linhas de matriz
 # Recebe uma matriz
-# Retorna uma nova matriz, com as linhas permutadas adequadamente segundo o algoritmo 
+# Retorna uma nova matriz, com as linhas permutadas adequadamente segundo o algoritmo
 def InvShiftRows(matrix):
     new = []
 
@@ -149,8 +149,8 @@ def InvShiftRows(matrix):
     
     # Deslocamento da segunda linha
     temp_matrix = matrix[1]
-    temp_char = temp_matrix.pop(0)
-    temp_matrix.append(temp_char)
+    temp_char = temp_matrix.pop()
+    temp_matrix.insert(0, temp_char)
     new.append(temp_matrix)
 
     # Deslocamento da terceira linha
@@ -163,8 +163,8 @@ def InvShiftRows(matrix):
 
     # Deslocamento da quarta linha
     temp_matrix = matrix[3]
-    temp_char = temp_matrix.pop()
-    temp_matrix.insert(0, temp_char)
+    temp_char = temp_matrix.pop(0)
+    temp_matrix.append(temp_char)
     new.append(temp_matrix)
 
     return new
