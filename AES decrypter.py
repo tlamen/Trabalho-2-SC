@@ -180,36 +180,60 @@ def gmul(a, b):
         return tmp if a < 128 else tmp ^ 0x1b
     if b == 3:
         return gmul(a, 2) ^ a
+    
+def gmul09(a):
+    return gmul(gmul(gmul(a, 2), 2), 2) ^ a
+
+def gmul11(a):
+    return gmul((gmul(gmul(a, 2), 2) ^ a), 2) ^ a
+
+def gmul13(a):
+    return gmul(gmul((gmul(a, 2) ^ a), 2), 2) ^ a
+
+def gmul14(a):
+    return gmul((((gmul(a, 2) ^ a), 2)^a), 2)
 
 # Função de embaralhamento de colunas
 # Recebe uma matriz
 # Retorna uma nova matriz, com mudanças realizadas por coluna
+# x×9=(((x×2)×2)×2)+x
+
+# x×11=((((x×2)×2)+x)×2)+x
+
+# x×13=((((x×2)+x)×2)×2)+x
+
+# x×14=((((x×2)+x)×2)+x)×2
+
+# 14 11 13 09
+# 09 14 11 13
+# 13 09 14 11
+# 11 13 09 14
 def InvMixColumns(matrix):
     new = [[], [], [], []]
     
     # Primeira coluna
-    new[0].append(gmul(matrix[0][0], 2) ^ gmul(matrix[1][0], 3) ^ gmul(matrix[2][0], 1) ^ gmul(matrix[3][0], 1))
-    new[1].append(gmul(matrix[0][0], 1) ^ gmul(matrix[1][0], 2) ^ gmul(matrix[2][0], 3) ^ gmul(matrix[3][0], 1))
-    new[2].append(gmul(matrix[0][0], 1) ^ gmul(matrix[1][0], 1) ^ gmul(matrix[2][0], 2) ^ gmul(matrix[3][0], 3))
-    new[3].append(gmul(matrix[0][0], 3) ^ gmul(matrix[1][0], 1) ^ gmul(matrix[2][0], 1) ^ gmul(matrix[3][0], 2))
+    new[0].append(gmul14(matrix[0][0]) ^ gmul11(matrix[1][0]) ^ gmul13(matrix[2][0]) ^ gmul09(matrix[3][0]))
+    new[1].append(gmul09(matrix[0][0]) ^ gmul14(matrix[1][0]) ^ gmul11(matrix[2][0]) ^ gmul13(matrix[3][0]))
+    new[2].append(gmul13(matrix[0][0]) ^ gmul09(matrix[1][0]) ^ gmul14(matrix[2][0]) ^ gmul11(matrix[3][0]))
+    new[3].append(gmul11(matrix[0][0]) ^ gmul13(matrix[1][0]) ^ gmul09(matrix[2][0]) ^ gmul14(matrix[3][0]))
 
     # Segunda coluna
-    new[0].append(gmul(matrix[0][1], 2) ^ gmul(matrix[1][1], 3) ^ gmul(matrix[2][1], 1) ^ gmul(matrix[3][1], 1))
-    new[1].append(gmul(matrix[0][1], 1) ^ gmul(matrix[1][1], 2) ^ gmul(matrix[2][1], 3) ^ gmul(matrix[3][1], 1))
-    new[2].append(gmul(matrix[0][1], 1) ^ gmul(matrix[1][1], 1) ^ gmul(matrix[2][1], 2) ^ gmul(matrix[3][1], 3))
-    new[3].append(gmul(matrix[0][1], 3) ^ gmul(matrix[1][1], 1) ^ gmul(matrix[2][1], 1) ^ gmul(matrix[3][1], 2))
+    new[0].append(gmul14(matrix[0][1]) ^ gmul11(matrix[1][1]) ^ gmul13(matrix[2][1]) ^ gmul09(matrix[3][1]))
+    new[1].append(gmul09(matrix[0][1]) ^ gmul14(matrix[1][1]) ^ gmul11(matrix[2][1]) ^ gmul13(matrix[3][1]))
+    new[2].append(gmul13(matrix[0][1]) ^ gmul09(matrix[1][1]) ^ gmul14(matrix[2][1]) ^ gmul11(matrix[3][1]))
+    new[3].append(gmul11(matrix[0][1]) ^ gmul13(matrix[1][1]) ^ gmul09(matrix[2][1]) ^ gmul14(matrix[3][1]))
 
     # Terceira coluna
-    new[0].append(gmul(matrix[0][2], 2) ^ gmul(matrix[1][2], 3) ^ gmul(matrix[2][2], 1) ^ gmul(matrix[3][2], 1))
-    new[1].append(gmul(matrix[0][2], 1) ^ gmul(matrix[1][2], 2) ^ gmul(matrix[2][2], 3) ^ gmul(matrix[3][2], 1))
-    new[2].append(gmul(matrix[0][2], 1) ^ gmul(matrix[1][2], 1) ^ gmul(matrix[2][2], 2) ^ gmul(matrix[3][2], 3))
-    new[3].append(gmul(matrix[0][2], 3) ^ gmul(matrix[1][2], 1) ^ gmul(matrix[2][2], 1) ^ gmul(matrix[3][2], 2))
+    new[0].append(gmul14(matrix[0][2]) ^ gmul11(matrix[1][2]) ^ gmul13(matrix[2][2]) ^ gmul09(matrix[3][2]))
+    new[1].append(gmul09(matrix[0][2]) ^ gmul14(matrix[1][2]) ^ gmul11(matrix[2][2]) ^ gmul13(matrix[3][2]))
+    new[2].append(gmul13(matrix[0][2]) ^ gmul09(matrix[1][2]) ^ gmul14(matrix[2][2]) ^ gmul11(matrix[3][2]))
+    new[3].append(gmul11(matrix[0][2]) ^ gmul13(matrix[1][2]) ^ gmul09(matrix[2][2]) ^ gmul14(matrix[3][2]))
 
     # Quarta coluna
-    new[0].append(gmul(matrix[0][3], 2) ^ gmul(matrix[1][3], 3) ^ gmul(matrix[2][3], 1) ^ gmul(matrix[3][3], 1))
-    new[1].append(gmul(matrix[0][3], 1) ^ gmul(matrix[1][3], 2) ^ gmul(matrix[2][3], 3) ^ gmul(matrix[3][3], 1))
-    new[2].append(gmul(matrix[0][3], 1) ^ gmul(matrix[1][3], 1) ^ gmul(matrix[2][3], 2) ^ gmul(matrix[3][3], 3))
-    new[3].append(gmul(matrix[0][3], 3) ^ gmul(matrix[1][3], 1) ^ gmul(matrix[2][3], 1) ^ gmul(matrix[3][3], 2))
+    new[0].append(gmul14(matrix[0][3]) ^ gmul11(matrix[1][3]) ^ gmul13(matrix[2][3]) ^ gmul09(matrix[3][3]))
+    new[1].append(gmul09(matrix[0][3]) ^ gmul14(matrix[1][3]) ^ gmul11(matrix[2][3]) ^ gmul13(matrix[3][3]))
+    new[2].append(gmul13(matrix[0][3]) ^ gmul09(matrix[1][3]) ^ gmul14(matrix[2][3]) ^ gmul11(matrix[3][3]))
+    new[3].append(gmul11(matrix[0][3]) ^ gmul13(matrix[1][3]) ^ gmul09(matrix[2][3]) ^ gmul14(matrix[3][3]))
 
     return new
 
