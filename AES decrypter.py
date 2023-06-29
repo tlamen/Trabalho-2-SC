@@ -35,8 +35,7 @@ S_BOX = {
     "f8": "41", "f9": "99", "fa": "2d", "fb": "0f", "fc": "b0", "fd": "54", "fe": "bb", "ff": "16"
 }
 
-inverted_s_box = {value: key for key, value in S_BOX.items()}
-print(inverted_s_box)
+INVERTED_S_BOX = {value: key for key, value in S_BOX.items()}
 
 
 # Função para pegar os estados de entrada de um texto
@@ -130,19 +129,19 @@ def KeySubBytes(word):
 # Função de substituição de matriz
 # Recebe a matriz a ser substituida
 # Retorna uma nova matriz com os valores corresppondentes na S_BOX
-def SubBytes(matrix):
+def InvSubBytes(matrix):
     new = []
     for i in range(4):
         column = []
         for j in range(4):
-            column.append(int(S_BOX[hex(matrix[i][j])[2:4]], 16))
+            column.append(int(INVERTED_S_BOX[hex(matrix[i][j])[2:4]], 16))
         new.append(column)
     return new
 
 # Função de mudança de linhas de matriz
 # Recebe uma matriz
 # Retorna uma nova matriz, com as linhas permutadas adequadamente segundo o algoritmo 
-def ShiftRows(matrix):
+def InvShiftRows(matrix):
     new = []
 
     # Primeira linha se mantém
@@ -185,7 +184,7 @@ def gmul(a, b):
 # Função de embaralhamento de colunas
 # Recebe uma matriz
 # Retorna uma nova matriz, com mudanças realizadas por coluna
-def MixColumns(matrix):
+def InvMixColumns(matrix):
     new = [[], [], [], []]
     
     # Primeira coluna
@@ -221,9 +220,9 @@ def MixColumns(matrix):
 def encrypt(text_matrix, keys):
     temp = add_round_key(text_matrix, keys[0])
     for i in range(1, len(keys)):
-        temp = SubBytes(temp)
-        temp = ShiftRows(temp)
-        temp = MixColumns(temp)
+        temp = InvSubBytes(temp)
+        temp = InvShiftRows(temp)
+        temp = InvMixColumns(temp)
         temp = add_round_key(temp, keys[i])
     return temp
 
