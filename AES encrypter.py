@@ -167,29 +167,11 @@ def gmul(a, b):
 def MixColumns(matrix):
     new = [[], [], [], []]
     
-    # Primeira linha
-    new[0].append(gmul(matrix[0][0], 2) ^ gmul(matrix[1][0], 3) ^ gmul(matrix[2][0], 1) ^ gmul(matrix[3][0], 1))
-    new[1].append(gmul(matrix[0][0], 1) ^ gmul(matrix[1][0], 2) ^ gmul(matrix[2][0], 3) ^ gmul(matrix[3][0], 1))
-    new[2].append(gmul(matrix[0][0], 1) ^ gmul(matrix[1][0], 1) ^ gmul(matrix[2][0], 2) ^ gmul(matrix[3][0], 3))
-    new[3].append(gmul(matrix[0][0], 3) ^ gmul(matrix[1][0], 1) ^ gmul(matrix[2][0], 1) ^ gmul(matrix[3][0], 2))
-
-    # Segunda coluna
-    new[0].append(gmul(matrix[0][1], 2) ^ gmul(matrix[1][1], 3) ^ gmul(matrix[2][1], 1) ^ gmul(matrix[3][1], 1))
-    new[1].append(gmul(matrix[0][1], 1) ^ gmul(matrix[1][1], 2) ^ gmul(matrix[2][1], 3) ^ gmul(matrix[3][1], 1))
-    new[2].append(gmul(matrix[0][1], 1) ^ gmul(matrix[1][1], 1) ^ gmul(matrix[2][1], 2) ^ gmul(matrix[3][1], 3))
-    new[3].append(gmul(matrix[0][1], 3) ^ gmul(matrix[1][1], 1) ^ gmul(matrix[2][1], 1) ^ gmul(matrix[3][1], 2))
-
-    # Terceira coluna
-    new[0].append(gmul(matrix[0][2], 2) ^ gmul(matrix[1][2], 3) ^ gmul(matrix[2][2], 1) ^ gmul(matrix[3][2], 1))
-    new[1].append(gmul(matrix[0][2], 1) ^ gmul(matrix[1][2], 2) ^ gmul(matrix[2][2], 3) ^ gmul(matrix[3][2], 1))
-    new[2].append(gmul(matrix[0][2], 1) ^ gmul(matrix[1][2], 1) ^ gmul(matrix[2][2], 2) ^ gmul(matrix[3][2], 3))
-    new[3].append(gmul(matrix[0][2], 3) ^ gmul(matrix[1][2], 1) ^ gmul(matrix[2][2], 1) ^ gmul(matrix[3][2], 2))
-
-    # Quarta coluna
-    new[0].append(gmul(matrix[0][3], 2) ^ gmul(matrix[1][3], 3) ^ gmul(matrix[2][3], 1) ^ gmul(matrix[3][3], 1))
-    new[1].append(gmul(matrix[0][3], 1) ^ gmul(matrix[1][3], 2) ^ gmul(matrix[2][3], 3) ^ gmul(matrix[3][3], 1))
-    new[2].append(gmul(matrix[0][3], 1) ^ gmul(matrix[1][3], 1) ^ gmul(matrix[2][3], 2) ^ gmul(matrix[3][3], 3))
-    new[3].append(gmul(matrix[0][3], 3) ^ gmul(matrix[1][3], 1) ^ gmul(matrix[2][3], 1) ^ gmul(matrix[3][3], 2))
+    for i in range(4):
+        new[i].append(gmul(matrix[i][0], 2) ^ gmul(matrix[i][1], 3) ^ gmul(matrix[i][2], 1) ^ gmul(matrix[i][3], 1))
+        new[i].append(gmul(matrix[i][1], 2) ^ gmul(matrix[i][2], 3) ^ gmul(matrix[i][3], 1) ^ gmul(matrix[i][0], 1))
+        new[i].append(gmul(matrix[i][2], 2) ^ gmul(matrix[i][3], 3) ^ gmul(matrix[i][0], 1) ^ gmul(matrix[i][1], 1))
+        new[i].append(gmul(matrix[i][3], 2) ^ gmul(matrix[i][0], 3) ^ gmul(matrix[i][1], 1) ^ gmul(matrix[i][2], 1))
 
     return new
 
