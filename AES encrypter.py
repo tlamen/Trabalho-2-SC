@@ -142,28 +142,10 @@ def SubBytes(matrix):
 def ShiftRows(matrix):
     new = []
 
-    # Primeira linha se mantém
-    new.append(matrix[0])
-    
-    # Deslocamento da segunda linha
-    temp_matrix = matrix[1]
-    temp_char = temp_matrix.pop(0)
-    temp_matrix.append(temp_char)
-    new.append(temp_matrix)
-
-    # Deslocamento da terceira linha
-    temp_matrix = matrix[2]
-    temp_char = temp_matrix.pop(0)
-    temp_matrix.append(temp_char)
-    temp_char = temp_matrix.pop(0)
-    temp_matrix.append(temp_char)
-    new.append(temp_matrix)
-
-    # Deslocamento da quarta linha
-    temp_matrix = matrix[3]
-    temp_char = temp_matrix.pop()
-    temp_matrix.insert(0, temp_char)
-    new.append(temp_matrix)
+    new.append([matrix[0][0], matrix[1][1], matrix[2][2], matrix[3][3]])
+    new.append([matrix[1][0], matrix[2][1], matrix[3][2], matrix[0][3]])
+    new.append([matrix[2][0], matrix[3][1], matrix[0][2], matrix[1][3]])
+    new.append([matrix[3][0], matrix[0][1], matrix[1][2], matrix[2][3]])
 
     return new
 
@@ -185,7 +167,7 @@ def gmul(a, b):
 def MixColumns(matrix):
     new = [[], [], [], []]
     
-    # Primeira coluna
+    # Primeira linha
     new[0].append(gmul(matrix[0][0], 2) ^ gmul(matrix[1][0], 3) ^ gmul(matrix[2][0], 1) ^ gmul(matrix[3][0], 1))
     new[1].append(gmul(matrix[0][0], 1) ^ gmul(matrix[1][0], 2) ^ gmul(matrix[2][0], 3) ^ gmul(matrix[3][0], 1))
     new[2].append(gmul(matrix[0][0], 1) ^ gmul(matrix[1][0], 1) ^ gmul(matrix[2][0], 2) ^ gmul(matrix[3][0], 3))
@@ -217,11 +199,17 @@ def MixColumns(matrix):
 # retorna uma matriz 4x4 criptografada
 def encrypt(text_matrix, keys):
     temp = add_round_key(text_matrix, keys[0])
+    print("After initial round key: ", temp)
     for i in range(1, len(keys)):
+        print("ROUND ", i)
         temp = SubBytes(temp)
+        print("After SubBytes: ", temp)
         temp = ShiftRows(temp)
+        print("After ShiftRows: ", temp)
         temp = MixColumns(temp)
+        print("After MixColumns: ", temp)
         temp = add_round_key(temp, keys[i])
+        print(print("After addRoundKey: ", temp))
     return temp
 
 # Função de conversão em texto
@@ -233,7 +221,6 @@ def to_text(matrixes):
         for i in range(4):
             for j in range(4):
                 s += chr(matrix[i][j])
-
     return s
 
 
@@ -249,7 +236,8 @@ text = get_bytes(text)
 
 results = []
 for i in range(len(text)):
-    print(i)
     results.append(encrypt(text[i], keys))
 
+# print(keys)
+print(results)
 print(to_text(results))
