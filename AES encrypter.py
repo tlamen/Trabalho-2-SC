@@ -184,6 +184,7 @@ def encrypt(text_matrix, keys):
     print("After initial round key: ", temp)
     for i in range(1, len(keys)):
         print("ROUND ", i)
+        print("Used subkey: ", keys[i])
         temp = SubBytes(temp)
         print("After SubBytes: ", temp)
         temp = ShiftRows(temp)
