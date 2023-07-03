@@ -102,6 +102,7 @@ def wordHeXOR(word1, int1):
 # Recebe a chave como string
 # Retorna um array com 11 matrizes 4x4 representando as sub-chaves
 def key_expansion(key):
+    print(key)
     sub_keys = []
     words = []
     init_round_key = get_bytes(key)[0]
