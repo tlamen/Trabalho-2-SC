@@ -121,10 +121,12 @@ def key_expansion(key):
             temp = wordHeXOR(y,  Rcon[int(i / 4)])
         words.append(wordXOR(word, temp))
     
-    print("Words array: ", words)
+    # print("Words array: ", words)
 
     for i in range(4, len(words), 4):
         sub_keys.append([words[i], words[i+1], words[i+2], words[i+3]])
+    print("words: ", words)
+    print("sub_keys: ", sub_keys)
     return sub_keys
 
 # Função de rotação de palavras
@@ -234,7 +236,8 @@ while len(key) != 16:
     key = input("key (128 bits / 16 caracteres): ")
 
 keys = key_expansion(key)
-print(keys)
+# for key in keys:
+#     print("Sub-chave: ", key)
 
 text = get_bytes(text)
 
@@ -243,5 +246,5 @@ for i in range(len(text)):
     results.append(encrypt(text[i], keys))
 
 # print(keys)
-print(results)
-print(to_text(results))
+# print(results)
+# print(to_text(results))
