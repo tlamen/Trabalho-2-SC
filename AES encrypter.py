@@ -102,16 +102,12 @@ def wordHeXOR(word1, int1):
 # Recebe a chave como string
 # Retorna um array com 11 matrizes 4x4 representando as sub-chaves
 def key_expansion(key):
-    print(key)
     sub_keys = []
     words = []
     init_round_key = get_bytes(key)[0]
     sub_keys.append(init_round_key)
     for i in range(4):
-        column = []
-        for j in range(4):
-            column.append(init_round_key[i][j])
-        words.append(column)
+        words.append(init_round_key[i])
 
     for i in range(4, 44):
         temp = words[i-1]
@@ -126,17 +122,13 @@ def key_expansion(key):
 
     for i in range(4, len(words), 4):
         sub_keys.append([words[i], words[i+1], words[i+2], words[i+3]])
-    print("words: ", words)
-    print("sub_keys: ", sub_keys)
     return sub_keys
 
 # Função de rotação de palavras
 # Recebe uma palavra
 # retorna uma nova palavra, com os bytes rotacionados para a esquerda
 def RotWord(word):
-    temp = word.pop(0)
-    word.append(temp)
-    return word
+    return [word[1], word[2], word[3], word[0]]
 
 # Função de substituição de palavra
 # Recebe uma palavra
@@ -204,18 +196,18 @@ def MixColumns(matrix):
 # retorna uma matriz 4x4 criptografada
 def encrypt(text_matrix, keys):
     temp = add_round_key(text_matrix, keys[0])
-    print("After initial round key: ", temp)
     for i in range(1, len(keys)):
-        print("ROUND ", i)
-        print("Used subkey: ", keys[i])
+        # print("ROUND ", i)
+        # print("Used subkey: ", keys[i])
         temp = SubBytes(temp)
-        print("After SubBytes: ", temp)
+        # print("After SubBytes: ", temp)
         temp = ShiftRows(temp)
-        print("After ShiftRows: ", temp)
-        temp = MixColumns(temp)
-        print("After MixColumns: ", temp)
+        # print("After ShiftRows: ", temp)
+        if i != 10:
+            temp = MixColumns(temp)
+        # print("After MixColumns: ", temp)
         temp = add_round_key(temp, keys[i])
-        print(print("After addRoundKey: ", temp))
+        # print("After addRoundKey: ", temp)
     return temp
 
 # Função de conversão em texto
@@ -248,4 +240,4 @@ for i in range(len(text)):
 
 # print(keys)
 # print(results)
-# print(to_text(results))
+print(to_text(results))
