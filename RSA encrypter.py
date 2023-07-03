@@ -2,6 +2,8 @@ import os
 import sys
 # Python3 program Miller-Rabin primality test
 import random
+import math
+import numpy
  
 # Utility function to do
 # modular exponentiation.
@@ -91,6 +93,50 @@ def isPrime(n, k):
  
     return True;
  
+
+# Python3 program to find multiplicative modulo
+# inverse using Extended Euclid algorithm.
+ 
+# Global Variables
+x, y = 0, 1
+ 
+# Function for extended Euclidean Algorithm
+ 
+ 
+def gcdExtended(a, b):
+    global x, y
+ 
+    # Base Case
+    if (a == 0):
+        x = 0
+        y = 1
+        return b
+ 
+    # To store results of recursive call
+    gcd = gcdExtended(b % a, a)
+    x1 = x
+    y1 = y
+ 
+    # Update x and y using results of recursive
+    # call
+    x = y1 - (b // a) * x1
+    y = x1
+ 
+    return gcd
+ 
+ 
+def modInverse(A, M):
+ 
+    g = gcdExtended(A, M)
+    if (g != 1):
+        return
+ 
+    else:
+ 
+        # m is added to handle negative x
+        res = (x % M + M) % M
+        return res
+
 # Driver Code
 # Number of iterations
  
@@ -103,16 +149,49 @@ while True:
     p = os.urandom(128)
     if (p not in not_possible):
         if isPrime(int.from_bytes(p, sys.byteorder), k):
-            print(f"p = ${int.from_bytes(p, sys.byteorder)}")
+            print(f"p = {int.from_bytes(p, sys.byteorder)}")
             while True:
                 q = os.urandom(128)
                 if p != q:
                     if (q not in not_possible):
                         if isPrime(int.from_bytes(q, sys.byteorder), k):
-                            print(f"q = ${int.from_bytes(q, sys.byteorder)}")
+                            print(f"q = {int.from_bytes(q, sys.byteorder)}")
                             break
                         else:
                             not_possible.append(q)
             break
     else:
         not_possible.append(p)
+
+p = int.from_bytes(p, sys.byteorder)
+q = int.from_bytes(q, sys.byteorder)
+
+n = p * q
+
+print(f'n = {n}')
+
+yp = p - 1
+yq = q - 1
+
+yn = numpy.lcm(yp, yq)
+
+print(f'yn = {yn}')
+
+efound = False
+
+for e in range(65537, yn):
+    if math.gcd(e, yn) == 1:
+        efound = True
+        break
+
+if efound != True:
+    for e in range(2, 65537, -1):
+        if math.gcd(e, yn) == 1:
+            efound = True
+            break
+
+print(f'e = {e}')
+
+d = modInverse(e, yn)
+
+print(f'd = {d}')
