@@ -35,6 +35,10 @@ S_BOX = {
     "f8": "41", "f9": "99", "fa": "2d", "fb": "0f", "fc": "b0", "fd": "54", "fe": "bb", "ff": "16"
 }
 
+Rcon = [0x00000000, 0x01000000, 0x02000000,
+		0x04000000, 0x08000000, 0x10000000, 
+		0x20000000, 0x40000000, 0x80000000, 
+		0x1b000000, 0x36000000]
 
 # Função para pegar os estados de entrada de um texto
 # Recebe o texto em string
@@ -73,11 +77,31 @@ def wordXOR(word1, word2):
         new.append(int(word1[i]) ^ int(word2[i]))
     return new
 
+def wordHeXOR(word1, int1):
+    new_word = []
+    bin1 = bin(int1)
+    s = ''
+    for n in word1:
+        s_temp = bin(n)[2:]
+        while len(s_temp) != 8:
+            s_temp = '0' + s_temp
+        s += s_temp
+    s = int(s, 2)
+    s = bin(s)
+    xord = int(s, 2) ^ int(bin1, 2)
+    hexed = hex(xord)[2:]
+    if len(hexed) != 8:
+        hexed = '0' + hexed
+    
+    for i in range(4):
+        temp = hexed[i*2:2+i*2]
+        new_word.append(int(temp, 16))
+    return new_word
+
 # Função que gera um array com 11 sub-chaves 
 # Recebe a chave como string
 # Retorna um array com 11 matrizes 4x4 representando as sub-chaves
 def key_expansion(key):
-    Rcon = [0, 1, 2, 4, 8, 16, 32, 64, 128, 27, 36]
     sub_keys = []
     words = []
     init_round_key = get_bytes(key)[0]
@@ -85,26 +109,22 @@ def key_expansion(key):
     for i in range(4):
         column = []
         for j in range(4):
-            column.append(init_round_key[j][i])
+            column.append(init_round_key[i][j])
         words.append(column)
 
     for i in range(4, 44):
         temp = words[i-1]
+        word = words[i-4]
+
         if (i % 4 == 0):
-            temp = KeySubBytes(RotWord(temp))
-            temp[0] = temp[0] ^ Rcon[int(i / 4)]
-        words.append(wordXOR(words[i-4], temp))
+            y = KeySubBytes(RotWord(temp))
+            temp = wordHeXOR(y,  Rcon[int(i / 4)])
+        words.append(wordXOR(word, temp))
     
-    for j in range(4, len(words), 4):
-        temp = []
+    print("Words array: ", words)
 
-        temp.append([words[j][0], words[j+1][0], words[j+2][0], words[j+3][0]])
-        temp.append([words[j][1], words[j+1][1], words[j+2][1], words[j+3][1]])
-        temp.append([words[j][2], words[j+1][2], words[j+2][2], words[j+3][2]])
-        temp.append([words[j][3], words[j+1][3], words[j+2][3], words[j+3][3]])
-
-        sub_keys.append(temp)
-
+    for i in range(4, len(words), 4):
+        sub_keys.append([words[i], words[i+1], words[i+2], words[i+3]])
     return sub_keys
 
 # Função de rotação de palavras
@@ -214,6 +234,7 @@ while len(key) != 16:
     key = input("key (128 bits / 16 caracteres): ")
 
 keys = key_expansion(key)
+print(keys)
 
 text = get_bytes(text)
 
