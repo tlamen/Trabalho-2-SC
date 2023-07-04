@@ -157,7 +157,7 @@ def InvSubBytes(matrix):
 # Função de mudança de linhas de matriz
 # Recebe uma matriz
 # Retorna uma nova matriz, com as linhas permutadas adequadamente segundo o algoritmo 
-def ShiftRows(matrix):
+def InvShiftRows(matrix):
     new = []
 
     new.append([matrix[0][0], matrix[1][1], matrix[2][2], matrix[3][3]])
@@ -192,7 +192,7 @@ def gmul14(a):
 # Função de embaralhamento de colunas
 # Recebe uma matriz
 # Retorna uma nova matriz, com mudanças realizadas por coluna
-def MixColumns(matrix):
+def InvMixColumns(matrix):
     new = [[], [], [], []]
     
     for i in range(4):
