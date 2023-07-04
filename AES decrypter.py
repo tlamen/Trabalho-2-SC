@@ -38,6 +38,11 @@ S_BOX = {
 INVERTED_S_BOX = {value: key for key, value in S_BOX.items()}
 
 
+Rcon = [0x00000000, 0x01000000, 0x02000000,
+		0x04000000, 0x08000000, 0x10000000, 
+		0x20000000, 0x40000000, 0x80000000, 
+		0x1b000000, 0x36000000]
+
 # Função para pegar os estados de entrada de um texto
 # Recebe o texto em string
 # Devolve um array com as matrizes dos estados de entrada em ordem
@@ -75,47 +80,58 @@ def wordXOR(word1, word2):
         new.append(int(word1[i]) ^ int(word2[i]))
     return new
 
+def wordHeXOR(word1, int1):
+    new_word = []
+    bin1 = bin(int1)
+    s = ''
+    for n in word1:
+        s_temp = bin(n)[2:]
+        while len(s_temp) != 8:
+            s_temp = '0' + s_temp
+        s += s_temp
+    s = int(s, 2)
+    s = bin(s)
+    xord = int(s, 2) ^ int(bin1, 2)
+    hexed = hex(xord)[2:]
+    if len(hexed) != 8:
+        hexed = '0' + hexed
+    
+    for i in range(4):
+        temp = hexed[i*2:2+i*2]
+        new_word.append(int(temp, 16))
+    return new_word
+
 # Função que gera um array com 11 sub-chaves 
 # Recebe a chave como string
 # Retorna um array com 11 matrizes 4x4 representando as sub-chaves
 def key_expansion(key):
-    Rcon = [0, 1, 2, 4, 8, 16, 32, 64, 128, 27, 36]
     sub_keys = []
     words = []
     init_round_key = get_bytes(key)[0]
     sub_keys.append(init_round_key)
     for i in range(4):
-        column = []
-        for j in range(4):
-            column.append(init_round_key[j][i])
-        words.append(column)
+        words.append(init_round_key[i])
 
     for i in range(4, 44):
         temp = words[i-1]
+        word = words[i-4]
+
         if (i % 4 == 0):
-            temp = KeySubBytes(RotWord(temp))
-            temp[0] = temp[0] ^ Rcon[int(i / 4)]
-        words.append(wordXOR(words[i-4], temp))
+            y = KeySubBytes(RotWord(temp))
+            temp = wordHeXOR(y,  Rcon[int(i / 4)])
+        words.append(wordXOR(word, temp))
     
-    for j in range(4, len(words), 4):
-        temp = []
+    # print("Words array: ", words)
 
-        temp.append([words[j][0], words[j+1][0], words[j+2][0], words[j+3][0]])
-        temp.append([words[j][1], words[j+1][1], words[j+2][1], words[j+3][1]])
-        temp.append([words[j][2], words[j+1][2], words[j+2][2], words[j+3][2]])
-        temp.append([words[j][3], words[j+1][3], words[j+2][3], words[j+3][3]])
-
-        sub_keys.append(temp)
-
+    for i in range(4, len(words), 4):
+        sub_keys.append([words[i], words[i+1], words[i+2], words[i+3]])
     return sub_keys
 
 # Função de rotação de palavras
 # Recebe uma palavra
 # retorna uma nova palavra, com os bytes rotacionados para a esquerda
 def RotWord(word):
-    temp = word.pop(0)
-    word.append(temp)
-    return word
+    return [word[1], word[2], word[3], word[0]]
 
 # Função de substituição de palavra
 # Recebe uma palavra
@@ -126,9 +142,9 @@ def KeySubBytes(word):
         new.append(int(S_BOX[hex(int(word[i]))[2:4]], 16))
     return new
         
-# Função inversa de substituição de matriz
+# Função de substituição de matriz
 # Recebe a matriz a ser substituida
-# Retorna uma nova matriz com os valores corresppondentes na INVERTED_S_BOX
+# Retorna uma nova matriz com os valores corresppondentes na S_BOX
 def InvSubBytes(matrix):
     new = []
     for i in range(4):
@@ -138,34 +154,16 @@ def InvSubBytes(matrix):
         new.append(column)
     return new
 
-# Função inversa de mudança de linhas de matriz
+# Função de mudança de linhas de matriz
 # Recebe uma matriz
-# Retorna uma nova matriz, com as linhas permutadas adequadamente segundo o algoritmo
-def InvShiftRows(matrix):
+# Retorna uma nova matriz, com as linhas permutadas adequadamente segundo o algoritmo 
+def ShiftRows(matrix):
     new = []
 
-    # Primeira linha se mantém
-    new.append(matrix[0])
-    
-    # Deslocamento da segunda linha
-    temp_matrix = matrix[1]
-    temp_char = temp_matrix.pop()
-    temp_matrix.insert(0, temp_char)
-    new.append(temp_matrix)
-
-    # Deslocamento da terceira linha
-    temp_matrix = matrix[2]
-    temp_char = temp_matrix.pop(0)
-    temp_matrix.append(temp_char)
-    temp_char = temp_matrix.pop(0)
-    temp_matrix.append(temp_char)
-    new.append(temp_matrix)
-
-    # Deslocamento da quarta linha
-    temp_matrix = matrix[3]
-    temp_char = temp_matrix.pop(0)
-    temp_matrix.append(temp_char)
-    new.append(temp_matrix)
+    new.append([matrix[0][0], matrix[1][1], matrix[2][2], matrix[3][3]])
+    new.append([matrix[1][0], matrix[2][1], matrix[3][2], matrix[0][3]])
+    new.append([matrix[2][0], matrix[3][1], matrix[0][2], matrix[1][3]])
+    new.append([matrix[3][0], matrix[0][1], matrix[1][2], matrix[2][3]])
 
     return new
 
@@ -180,7 +178,6 @@ def gmul(a, b):
         return tmp if a < 128 else tmp ^ 0x1b
     if b == 3:
         return gmul(a, 2) ^ a
-    
 def gmul09(a):
     return gmul(gmul(gmul(a, 2), 2), 2) ^ a
 
@@ -192,48 +189,17 @@ def gmul13(a):
 
 def gmul14(a):
     return gmul((gmul((gmul(a, 2) ^ a), 2) ^ a), 2)
-
 # Função de embaralhamento de colunas
 # Recebe uma matriz
 # Retorna uma nova matriz, com mudanças realizadas por coluna
-# x×9=(((x×2)×2)×2)+x
-
-# x×11=((((x×2)×2)+x)×2)+x
-
-# x×13=((((x×2)+x)×2)×2)+x
-
-# x×14=((((x×2)+x)×2)+x)×2
-
-# 14 11 13 09
-# 09 14 11 13
-# 13 09 14 11
-# 11 13 09 14
-def InvMixColumns(matrix):
+def MixColumns(matrix):
     new = [[], [], [], []]
     
-    # Primeira coluna
-    new[0].append(gmul14(matrix[0][0]) ^ gmul11(matrix[1][0]) ^ gmul13(matrix[2][0]) ^ gmul09(matrix[3][0]))
-    new[1].append(gmul09(matrix[0][0]) ^ gmul14(matrix[1][0]) ^ gmul11(matrix[2][0]) ^ gmul13(matrix[3][0]))
-    new[2].append(gmul13(matrix[0][0]) ^ gmul09(matrix[1][0]) ^ gmul14(matrix[2][0]) ^ gmul11(matrix[3][0]))
-    new[3].append(gmul11(matrix[0][0]) ^ gmul13(matrix[1][0]) ^ gmul09(matrix[2][0]) ^ gmul14(matrix[3][0]))
-
-    # Segunda coluna
-    new[0].append(gmul14(matrix[0][1]) ^ gmul11(matrix[1][1]) ^ gmul13(matrix[2][1]) ^ gmul09(matrix[3][1]))
-    new[1].append(gmul09(matrix[0][1]) ^ gmul14(matrix[1][1]) ^ gmul11(matrix[2][1]) ^ gmul13(matrix[3][1]))
-    new[2].append(gmul13(matrix[0][1]) ^ gmul09(matrix[1][1]) ^ gmul14(matrix[2][1]) ^ gmul11(matrix[3][1]))
-    new[3].append(gmul11(matrix[0][1]) ^ gmul13(matrix[1][1]) ^ gmul09(matrix[2][1]) ^ gmul14(matrix[3][1]))
-
-    # Terceira coluna
-    new[0].append(gmul14(matrix[0][2]) ^ gmul11(matrix[1][2]) ^ gmul13(matrix[2][2]) ^ gmul09(matrix[3][2]))
-    new[1].append(gmul09(matrix[0][2]) ^ gmul14(matrix[1][2]) ^ gmul11(matrix[2][2]) ^ gmul13(matrix[3][2]))
-    new[2].append(gmul13(matrix[0][2]) ^ gmul09(matrix[1][2]) ^ gmul14(matrix[2][2]) ^ gmul11(matrix[3][2]))
-    new[3].append(gmul11(matrix[0][2]) ^ gmul13(matrix[1][2]) ^ gmul09(matrix[2][2]) ^ gmul14(matrix[3][2]))
-
-    # Quarta coluna
-    new[0].append(gmul14(matrix[0][3]) ^ gmul11(matrix[1][3]) ^ gmul13(matrix[2][3]) ^ gmul09(matrix[3][3]))
-    new[1].append(gmul09(matrix[0][3]) ^ gmul14(matrix[1][3]) ^ gmul11(matrix[2][3]) ^ gmul13(matrix[3][3]))
-    new[2].append(gmul13(matrix[0][3]) ^ gmul09(matrix[1][3]) ^ gmul14(matrix[2][3]) ^ gmul11(matrix[3][3]))
-    new[3].append(gmul11(matrix[0][3]) ^ gmul13(matrix[1][3]) ^ gmul09(matrix[2][3]) ^ gmul14(matrix[3][3]))
+    for i in range(4):
+        new[i].append(gmul(matrix[i][0], 2) ^ gmul(matrix[i][1], 3) ^ gmul(matrix[i][2], 1) ^ gmul(matrix[i][3], 1))
+        new[i].append(gmul(matrix[i][1], 2) ^ gmul(matrix[i][2], 3) ^ gmul(matrix[i][3], 1) ^ gmul(matrix[i][0], 1))
+        new[i].append(gmul(matrix[i][2], 2) ^ gmul(matrix[i][3], 3) ^ gmul(matrix[i][0], 1) ^ gmul(matrix[i][1], 1))
+        new[i].append(gmul(matrix[i][3], 2) ^ gmul(matrix[i][0], 3) ^ gmul(matrix[i][1], 1) ^ gmul(matrix[i][2], 1))
 
     return new
 
@@ -244,10 +210,17 @@ def InvMixColumns(matrix):
 def encrypt(text_matrix, keys):
     temp = add_round_key(text_matrix, keys[0])
     for i in range(1, len(keys)):
+        # print("ROUND ", i)
+        # print("Used subkey: ", keys[i])
         temp = InvSubBytes(temp)
+        # print("After SubBytes: ", temp)
         temp = InvShiftRows(temp)
-        temp = InvMixColumns(temp)
+        # print("After ShiftRows: ", temp)
+        if i != 10:
+            temp = InvMixColumns(temp)
+        # print("After MixColumns: ", temp)
         temp = add_round_key(temp, keys[i])
+        # print("After addRoundKey: ", temp)
     return temp
 
 # Função de conversão em texto
@@ -259,7 +232,6 @@ def to_text(matrixes):
         for i in range(4):
             for j in range(4):
                 s += chr(matrix[i][j])
-
     return s
 
 
@@ -270,6 +242,8 @@ while len(key) != 16:
     key = input("key (128 bits / 16 caracteres): ")
 
 keys = key_expansion(key)
+# for key in keys:
+#     print("Sub-chave: ", key)
 
 text = get_bytes(text)
 
@@ -277,4 +251,5 @@ results = []
 for i in range(len(text)):
     results.append(encrypt(text[i], keys))
 
-print(to_text(results))
+# print(keys)
+print(results)

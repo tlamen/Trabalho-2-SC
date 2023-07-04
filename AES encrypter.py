@@ -239,5 +239,5 @@ for i in range(len(text)):
     results.append(encrypt(text[i], keys))
 
 # print(keys)
-# print(results)
-print(to_text(results))
+print(results)
+# print(to_text(results))
