@@ -207,19 +207,20 @@ def InvMixColumns(matrix):
 # Função de deciframento
 # Recebe uma matriz 4x4 do texto base e o conjunto de subchaves a ser utilizada
 # retorna uma matriz 4x4 criptografada
-def encrypt(text_matrix, keys):
-    temp = add_round_key(text_matrix, keys[0])
-    for i in range(1, len(keys)):
+def decrypt(text_matrix, keys):
+    temp = add_round_key(text_matrix, keys[-1])
+    for i in range(len(keys)-1, -1, -1):
         # print("ROUND ", i)
         # print("Used subkey: ", keys[i])
+        temp = InvShiftRows(temp)
         temp = InvSubBytes(temp)
         # print("After SubBytes: ", temp)
-        temp = InvShiftRows(temp)
+        temp = add_round_key(temp, keys[i])
         # print("After ShiftRows: ", temp)
-        if i != 10:
+        if i != 0:
             temp = InvMixColumns(temp)
         # print("After MixColumns: ", temp)
-        temp = add_round_key(temp, keys[i])
+        
         # print("After addRoundKey: ", temp)
     return temp
 
@@ -249,7 +250,7 @@ text = get_bytes(text)
 
 results = []
 for i in range(len(text)):
-    results.append(encrypt(text[i], keys))
+    results.append(decrypt(text[i], keys))
 
 # print(keys)
 print(results)
