@@ -197,17 +197,17 @@ def MixColumns(matrix):
 def encrypt(text_matrix, keys):
     temp = add_round_key(text_matrix, keys[0])
     for i in range(1, len(keys)):
-        # print("ROUND ", i)
-        # print("Used subkey: ", keys[i])
+        print("ROUND ", i)
+        print("Used subkey: ", keys[i])
         temp = SubBytes(temp)
-        # print("After SubBytes: ", temp)
+        print("After SubBytes: ", temp)
         temp = ShiftRows(temp)
-        # print("After ShiftRows: ", temp)
+        print("After ShiftRows: ", temp)
         if i != 10:
             temp = MixColumns(temp)
-        # print("After MixColumns: ", temp)
+            print("After MixColumns: ", temp)
         temp = add_round_key(temp, keys[i])
-        # print("After addRoundKey: ", temp)
+        print("After addRoundKey: ", temp)
     return temp
 
 # Função de conversão em texto
@@ -240,4 +240,4 @@ for i in range(len(text)):
 
 # print(keys)
 print(results)
-# print(to_text(results))
+print(to_text(results))

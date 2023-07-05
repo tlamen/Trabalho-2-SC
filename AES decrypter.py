@@ -201,9 +201,9 @@ def InvMixColumns(matrix):
     
     for i in range(4):
         new[i].append(gmul14(matrix[i][0]) ^ gmul11(matrix[i][1]) ^ gmul13(matrix[i][2]) ^ gmul09(matrix[i][3]))
-        new[i].append(gmul09(matrix[i][1]) ^ gmul14(matrix[i][2]) ^ gmul11(matrix[i][3]) ^ gmul13(matrix[i][0]))
-        new[i].append(gmul13(matrix[i][2]) ^ gmul09(matrix[i][3]) ^ gmul14(matrix[i][0]) ^ gmul11(matrix[i][1]))
-        new[i].append(gmul11(matrix[i][3]) ^ gmul13(matrix[i][0]) ^ gmul09(matrix[i][1]) ^ gmul14(matrix[i][2]))
+        new[i].append(gmul09(matrix[i][0]) ^ gmul14(matrix[i][1]) ^ gmul11(matrix[i][2]) ^ gmul13(matrix[i][3]))
+        new[i].append(gmul13(matrix[i][0]) ^ gmul09(matrix[i][1]) ^ gmul14(matrix[i][2]) ^ gmul11(matrix[i][3]))
+        new[i].append(gmul11(matrix[i][0]) ^ gmul13(matrix[i][1]) ^ gmul09(matrix[i][2]) ^ gmul14(matrix[i][3]))
 
     return new
 
@@ -212,20 +212,23 @@ def InvMixColumns(matrix):
 # Recebe uma matriz 4x4 do texto base e o conjunto de subchaves a ser utilizada
 # retorna uma matriz 4x4 criptografada
 def decrypt(text_matrix, keys):
+    for key in keys:
+        print(key)
     temp = add_round_key(text_matrix, keys[-1])
-    for i in range(len(keys)-1, -1, -1):
-        # print("ROUND ", i)
-        # print("Used subkey: ", keys[i])
+    print("After initial round key: ", temp)
+    for i in range(len(keys)-1, 0, -1):
+        print("ROUND ", i)
+        print("Used subkey: ", keys[i-1])
         temp = InvShiftRows(temp)
+        print("After ShiftRows: ", temp)
         temp = InvSubBytes(temp)
-        # print("After SubBytes: ", temp)
-        temp = add_round_key(temp, keys[i])
-        # print("After ShiftRows: ", temp)
-        if i != 0:
+        print("After SubBytes: ", temp)
+        temp = add_round_key(temp, keys[i-1])
+        print("After addRoundKey: ", temp)
+        if i != 1:
             temp = InvMixColumns(temp)
-        # print("After MixColumns: ", temp)
+            print("After MixColumns: ", temp)
         
-        # print("After addRoundKey: ", temp)
     return temp
 
 # Função de conversão em texto
@@ -239,22 +242,31 @@ def to_text(matrixes):
                 s += chr(matrix[i][j])
     return s
 
+encripted = [[]]
 
-text = input("encrypted text: ")
+# for i in range(4):
+#     row = []
+#     for j in range(4):
+#         n = int(input("Componente do texto:"))
+#         row.append(n)
+#     encripted[0].append(row)
 
-key = input("key: ")
-while len(key) != 16:
-    key = input("key (128 bits / 16 caracteres): ")
+encripted = [[[91, 177, 3, 134], [83, 221, 167, 17], [139, 41, 112, 136], [9, 217, 36, 46]]]
+
+# key = input("key: ")
+# while len(key) != 16:
+#     key = input("key (128 bits / 16 caracteres): ")
+
+key = "abcdefghijklmnop"
 
 keys = key_expansion(key)
 # for key in keys:
 #     print("Sub-chave: ", key)
 
-text = get_bytes(text)
+# text = get_bytes(text)
 
 results = []
-for i in range(len(text)):
-    results.append(decrypt(text[i], keys))
+for i in range(len(encripted)):
+    results.append(decrypt(encripted[i], keys))
 
-# print(keys)
 print(results)
