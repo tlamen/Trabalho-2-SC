@@ -1,3 +1,4 @@
+import random
 
 # S_BOX utilizada nas funções de substituição
 S_BOX = {
@@ -104,10 +105,9 @@ def wordHeXOR(word1, int1):
 def key_expansion(key):
     sub_keys = []
     words = []
-    init_round_key = get_bytes(key)[0]
-    sub_keys.append(init_round_key)
+    sub_keys.append(key)
     for i in range(4):
-        words.append(init_round_key[i])
+        words.append(key[i])
 
     for i in range(4, 44):
         temp = words[i-1]
@@ -224,10 +224,20 @@ def to_text(matrixes):
 
 text = input("plain text: ")
 
-key = input("key: ")
-while len(key) != 16:
-    key = input("key (128 bits / 16 caracteres): ")
+key = []
+for i in range(4):
+    row = []
+    for j in range(4):
+        n = random.randint(0,256)
+        row.append(n)
+    key.append(row)
 
+
+# key = "abcdefghijklmnop" 
+# while len(key) != 16:
+#     key = input("key (128 bits / 16 caracteres): ")
+
+print(key)
 keys = key_expansion(key)
 # for key in keys:
 #     print("Sub-chave: ", key)
