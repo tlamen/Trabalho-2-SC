@@ -192,14 +192,18 @@ def gmul14(a):
 # Função de embaralhamento de colunas
 # Recebe uma matriz
 # Retorna uma nova matriz, com mudanças realizadas por coluna
+#14 11 13 09
+#09 14 11 13
+#13 09 14 11
+#11 13 09 14
 def InvMixColumns(matrix):
     new = [[], [], [], []]
     
     for i in range(4):
-        new[i].append(gmul(matrix[i][0], 2) ^ gmul(matrix[i][1], 3) ^ gmul(matrix[i][2], 1) ^ gmul(matrix[i][3], 1))
-        new[i].append(gmul(matrix[i][1], 2) ^ gmul(matrix[i][2], 3) ^ gmul(matrix[i][3], 1) ^ gmul(matrix[i][0], 1))
-        new[i].append(gmul(matrix[i][2], 2) ^ gmul(matrix[i][3], 3) ^ gmul(matrix[i][0], 1) ^ gmul(matrix[i][1], 1))
-        new[i].append(gmul(matrix[i][3], 2) ^ gmul(matrix[i][0], 3) ^ gmul(matrix[i][1], 1) ^ gmul(matrix[i][2], 1))
+        new[i].append(gmul14(matrix[i][0]) ^ gmul11(matrix[i][1]) ^ gmul13(matrix[i][2]) ^ gmul09(matrix[i][3]))
+        new[i].append(gmul09(matrix[i][1]) ^ gmul14(matrix[i][2]) ^ gmul11(matrix[i][3]) ^ gmul13(matrix[i][0]))
+        new[i].append(gmul13(matrix[i][2]) ^ gmul09(matrix[i][3]) ^ gmul14(matrix[i][0]) ^ gmul11(matrix[i][1]))
+        new[i].append(gmul11(matrix[i][3]) ^ gmul13(matrix[i][0]) ^ gmul09(matrix[i][1]) ^ gmul14(matrix[i][2]))
 
     return new
 
