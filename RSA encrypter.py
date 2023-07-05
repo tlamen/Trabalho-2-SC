@@ -4,6 +4,7 @@ import sys
 import random
 import math
 import numpy
+from unidecode import unidecode
  
 # Utility function to do
 # modular exponentiation.
@@ -157,10 +158,8 @@ while True:
                         if isPrime(int.from_bytes(q, sys.byteorder), k):
                             print(f"q = {int.from_bytes(q, sys.byteorder)}")
                             break
-                        else:
-                            not_possible.append(q)
+                        not_possible.append(q)
             break
-    else:
         not_possible.append(p)
 
 p = int.from_bytes(p, sys.byteorder)
@@ -195,3 +194,29 @@ print(f'e = {e}')
 d = modInverse(e, yn)
 
 print(f'd = {d}')
+
+M = unidecode(input('Message to be encrypted: '))
+
+M_array = []
+
+for i in M:
+    M_array.append(ord(i))
+
+c_array = []
+
+for i in M_array:
+    c_array.append((i ** e) % n)
+
+print(c_array)
+
+decrypted_array = []
+
+for i in c_array:
+    decrypted_array.append(pow(i, d, n))
+
+decrypted = ''
+
+for i in decrypted_array:
+    decrypted += chr(i)
+
+print(decrypted)
