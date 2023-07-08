@@ -4,8 +4,8 @@ import sys
 import random
 import math
 import numpy
-from unidecode import unidecode
 from SHA1hash import sha1
+from MGF1mask import mgf1
  
 # Utility function to do
 # modular exponentiation.
@@ -196,28 +196,36 @@ d = modInverse(e, yn)
 
 print(f'd = {d}')
 
-M = unidecode(input('Message to be encrypted: '))
+def generate_padding_string(k, mLen, hLen):
+    padding_length = k - mLen - 2 * hLen - 2
+    padding_string = b'\x00' * padding_length
+    return padding_string
 
-M_array = []
+k = math.ceil(n.bit_length() / 8)
+M = input('Message to be encrypted: ').encode()
+mLen = len(M)
 
-for i in M:
-    M_array.append(ord(i))
+L = "atumalaca".encode()
+lHash = sha1(L)
+hLen = len(lHash)
+PS = generate_padding_string(k, mLen, hLen)
 
-c_array = []
+DB = lHash + PS + b'\x01' + M
 
-for i in M_array:
-    c_array.append((i ** e) % n)
+seed = os.urandom(hLen)
 
-print(c_array)
+dbMask = mgf1(seed, k - hLen - 1)
 
-decrypted_array = []
+maskedDB = bytes([a ^ b for a, b in zip(DB, dbMask)])
 
-for i in c_array:
-    decrypted_array.append(pow(i, d, n))
+seedMask = mgf1(maskedDB, hLen)
 
-decrypted = ''
+maskedSeed = bytes([a ^ b for a, b in zip(seed, seedMask)])
 
-for i in decrypted_array:
-    decrypted += chr(i)
+EM = b'\x00' + maskedSeed + maskedDB
 
-print(decrypted)
+integer_data = int.from_bytes(EM, byteorder='big')
+
+crypted = pow(integer_data, e, n)
+
+print(crypted)

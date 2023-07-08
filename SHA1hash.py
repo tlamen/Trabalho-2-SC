@@ -58,8 +58,10 @@ def sha1(message):
         h3 = (h3 + d) & 0xFFFFFFFF
         h4 = (h4 + e) & 0xFFFFFFFF
 
-    return '{:08x}{:08x}{:08x}{:08x}{:08x}'.format(h0, h1, h2, h3, h4)
+    hash_bytes = bytes([h0 >> 24, h0 >> 16 & 0xff, h0 >> 8 & 0xff, h0 & 0xff,
+                       h1 >> 24, h1 >> 16 & 0xff, h1 >> 8 & 0xff, h1 & 0xff,
+                       h2 >> 24, h2 >> 16 & 0xff, h2 >> 8 & 0xff, h2 & 0xff,
+                       h3 >> 24, h3 >> 16 & 0xff, h3 >> 8 & 0xff, h3 & 0xff,
+                       h4 >> 24, h4 >> 16 & 0xff, h4 >> 8 & 0xff, h4 & 0xff])
 
-
-message = input("Message: ").encode()
-print('SHA-1:', sha1(message))
+    return hash_bytes
