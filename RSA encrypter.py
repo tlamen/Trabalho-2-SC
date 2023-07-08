@@ -5,6 +5,7 @@ import random
 import math
 import numpy
 from unidecode import unidecode
+from SHA1hash import sha1
  
 # Utility function to do
 # modular exponentiation.
