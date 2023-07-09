@@ -222,10 +222,64 @@ seedMask = mgf1(maskedDB, hLen)
 
 maskedSeed = bytes([a ^ b for a, b in zip(seed, seedMask)])
 
+print('maskedSeed original')
+
+for i in maskedSeed:
+    print(i)
+
+print('maskedDB original')
+
+for i in maskedDB:
+    print(i)
+
 EM = b'\x00' + maskedSeed + maskedDB
+
+EM_length = len(EM)
+
 
 integer_data = int.from_bytes(EM, byteorder='big')
 
 crypted = pow(integer_data, e, n)
 
 print(crypted)
+
+decrypted = pow(crypted, d, n)
+
+decrypted_bytes = decrypted.to_bytes(EM_length, byteorder= 'big')
+
+lHash = sha1(L)
+
+maskedSeed = decrypted_bytes[1 : hLen + 1]
+maskedDB = decrypted_bytes[hLen + 1 : ]
+
+seedMask = mgf1(maskedDB, hLen)
+
+seed = bytes([a ^ b for a, b in zip(maskedSeed, seedMask)])
+
+dbMask = mgf1(seed, k - hLen - 1)
+
+DB = bytes([a ^ b for a, b in zip(maskedDB, dbMask)])
+
+lHashverify = DB[ : hLen]
+
+remainder = DB[hLen : ]
+
+print('remainder', remainder)
+
+counter = 0
+
+for i in remainder:
+    if i == 1:
+        counter += 1
+        break
+    counter += 1
+
+print('tamanho remainder', len(remainder))
+
+print('contador', counter)
+
+M = remainder[counter : ]
+
+print(M)
+
+print('message: ', M.decode())
