@@ -6,6 +6,8 @@ import numpy
 from SHA1hash import sha1
 from MGF1mask import mgf1
 
+
+# Função para definir a potência do teste de primalidade de Miller-Rabin
 def power(x, y, p):
     
     res = 1
@@ -19,6 +21,7 @@ def power(x, y, p):
     
     return res
 
+# Teste de primalidade de Miller-Rabin
 def miillerTest(d, n):
     a = 2 + random.randint(1, n - 4)
 
@@ -38,6 +41,8 @@ def miillerTest(d, n):
 
     return False
 
+# Função para verificação se o número é primo.
+# Caso não entre nos casos base, fará o teste de primalidade de Miller-Rabin
 def isPrime(n, k):
     
     if (n <= 1 or n == 4):
@@ -57,6 +62,7 @@ def isPrime(n, k):
 
 x, y = 0, 1
 
+# Calculador do maior divisor comum
 def gcdExtended(a, b):
     global x, y
 
@@ -73,8 +79,8 @@ def gcdExtended(a, b):
     y = x1
 
     return gcd
- 
- 
+
+# Caclulador do inverso modular
 def modInverse(A, M):
 
     g = gcdExtended(A, M)
@@ -85,9 +91,10 @@ def modInverse(A, M):
         res = (x % M + M) % M
         return res
 
-not_possible = []
-k = 1000
+not_possible = []   # Array de números primos já testados para que o número aleatório gerado não seja testado novamente
+k = 1000            # Número de iterações do teste de primalidade de Miller-Rabin
 
+# Gerador de 2 números primos diferentes de 1024 bits
 while True:
     p = os.urandom(128)
     if (p not in not_possible):
@@ -104,10 +111,11 @@ while True:
             break
         not_possible.append(p)
 
+# Transformação dos números para inteiro, para que possamos fazer cálculos com eles
 p = int.from_bytes(p, sys.byteorder)
 q = int.from_bytes(q, sys.byteorder)
 
-n = p * q
+n = p * q   # Módulo do RSA
 
 print(f'n = {n}')
 
@@ -116,15 +124,15 @@ yq = q - 1
 
 yn = numpy.lcm(yp, yq)
 
-print(f'yn = {yn}')
-
 efound = False
 
+# Testando se e e yn são coprimos.
 for e in range(65537, yn):
     if math.gcd(e, yn) == 1:
         efound = True
         break
 
+# Caso o teste acima falhe, testamos novamente
 if efound != True:
     for e in range(2, 65537, -1):
         if math.gcd(e, yn) == 1:
@@ -137,21 +145,25 @@ d = modInverse(e, yn)
 
 print(f'd = {d}')
 
+# Gerador da padding string para o OAEP
 def generate_padding_string(k, mLen, hLen):
     padding_length = k - mLen - 2 * hLen - 2
     padding_string = b'\x00' * padding_length
     return padding_string
 
+# A partir daqui, é uma mistura de OAEP com RSA
 k = math.ceil(n.bit_length() / 8)
+print(k)
 M = input('Message to be encrypted: ').encode()
 mLen = len(M)
+print('tamanho mensagem: ', mLen)
 
-L = "atumalaca".encode()
+L = "atumalaca".encode()    # Label para o hash do data block do OAEP
 lHash = sha1(L)
 hLen = len(lHash)
-PS = generate_padding_string(k, mLen, hLen)
+PS = generate_padding_string(k, mLen, hLen) # Padding String
 
-DB = lHash + PS + b'\x01' + M
+DB = lHash + PS + b'\x01' + M   # Data Block OAEP
 
 seed = os.urandom(hLen)
 
@@ -163,22 +175,11 @@ seedMask = mgf1(maskedDB, hLen)
 
 maskedSeed = bytes([a ^ b for a, b in zip(seed, seedMask)])
 
-print('maskedSeed original')
-
-for i in maskedSeed:
-    print(i)
-
-print('maskedDB original')
-
-for i in maskedDB:
-    print(i)
-
-EM = b'\x00' + maskedSeed + maskedDB
+EM = b'\x00' + maskedSeed + maskedDB    # Encoded Message
 
 EM_length = len(EM)
 
-
-integer_data = int.from_bytes(EM, byteorder='big')
+integer_data = int.from_bytes(EM, byteorder='big')  # Transformando a mensagem codificada com o OAEP em inteiro
 
 crypted = pow(integer_data, e, n)
 
@@ -186,9 +187,9 @@ print(crypted)
 
 decrypted = pow(crypted, d, n)
 
-decrypted_bytes = decrypted.to_bytes(EM_length, byteorder= 'big')
+decrypted_bytes = decrypted.to_bytes(EM_length, byteorder= 'big')   # Transformando o inteiro decfirado em bytes
 
-lHash = sha1(L)
+lHash = sha1(L) # Recuperando o hash
 
 maskedSeed = decrypted_bytes[1 : hLen + 1]
 maskedDB = decrypted_bytes[hLen + 1 : ]
@@ -203,24 +204,22 @@ DB = bytes([a ^ b for a, b in zip(maskedDB, dbMask)])
 
 lHashverify = DB[ : hLen]
 
-remainder = DB[hLen : ]
+# Verificando se o Hash é o mesmo no data block pós decifração
+if lHashverify != lHash:
+    print('ERRO')
+    sys.exit(1)
 
-print('remainder', remainder)
+remainder = DB[hLen : ]
 
 counter = 0
 
+# Encontrando o byte 0x01
 for i in remainder:
     if i == 1:
         counter += 1
         break
     counter += 1
 
-print('tamanho remainder', len(remainder))
-
-print('contador', counter)
-
-M = remainder[counter : ]
-
-print(M)
+M = remainder[counter : ]   # Recolhendo a mensagem do resto do data block
 
 print('message: ', M.decode())
