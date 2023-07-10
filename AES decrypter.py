@@ -1,40 +1,42 @@
-import random
 
 # S_BOX utilizada nas funções de substituição
 S_BOX = {
     "0": "63", "1": "7c", "2": "77", "3": "7b", "4": "f2", "5": "6b", "6": "6f", "7": "c5",
-    "8": "30", "9": "01", "a": "67", "b": "2b", "c": "fe", "d": "d7", "e": "ab", "f": "76",
+    "8": "30", "9": "1", "a": "67", "b": "2b", "c": "fe", "d": "d7", "e": "ab", "f": "76",
     "10": "ca", "11": "82", "12": "c9", "13": "7d", "14": "fa", "15": "59", "16": "47", "17": "f0",
     "18": "ad", "19": "d4", "1a": "a2", "1b": "af", "1c": "9c", "1d": "a4", "1e": "72", "1f": "c0",
     "20": "b7", "21": "fd", "22": "93", "23": "26", "24": "36", "25": "3f", "26": "f7", "27": "cc",
     "28": "34", "29": "a5", "2a": "e5", "2b": "f1", "2c": "71", "2d": "d8", "2e": "31", "2f": "15",
-    "30": "04", "31": "c7", "32": "23", "33": "c3", "34": "18", "35": "96", "36": "05", "37": "9a",
-    "38": "07", "39": "12", "3a": "80", "3b": "e2", "3c": "eb", "3d": "27", "3e": "b2", "3f": "75",
-    "40": "09", "41": "83", "42": "2c", "43": "1a", "44": "1b", "45": "6e", "46": "5a", "47": "a0",
+    "30": "4", "31": "c7", "32": "23", "33": "c3", "34": "18", "35": "96", "36": "5", "37": "9a",
+    "38": "7", "39": "12", "3a": "80", "3b": "e2", "3c": "eb", "3d": "27", "3e": "b2", "3f": "75",
+    "40": "9", "41": "83", "42": "2c", "43": "1a", "44": "1b", "45": "6e", "46": "5a", "47": "a0",
     "48": "52", "49": "3b", "4a": "d6", "4b": "b3", "4c": "29", "4d": "e3", "4e": "2f", "4f": "84",
-    "50": "53", "51": "d1", "52": "00", "53": "ed", "54": "20", "55": "fc", "56": "b1", "57": "5b",
+    "50": "53", "51": "d1", "52": "0", "53": "ed", "54": "20", "55": "fc", "56": "b1", "57": "5b",
     "58": "6a", "59": "cb", "5a": "be", "5b": "39", "5c": "4a", "5d": "4c", "5e": "58", "5f": "cf",
     "60": "d0", "61": "ef", "62": "aa", "63": "fb", "64": "43", "65": "4d", "66": "33", "67": "85",
-    "68": "45", "69": "f9", "6a": "02", "6b": "7f", "6c": "50", "6d": "3c", "6e": "9f", "6f": "a8",
+    "68": "45", "69": "f9", "6a": "2", "6b": "7f", "6c": "50", "6d": "3c", "6e": "9f", "6f": "a8",
     "70": "51", "71": "a3", "72": "40", "73": "8f", "74": "92", "75": "9d", "76": "38", "77": "f5",
     "78": "bc", "79": "b6", "7a": "da", "7b": "21", "7c": "10", "7d": "ff", "7e": "f3", "7f": "d2",
-    "80": "cd", "81": "0c", "82": "13", "83": "ec", "84": "5f", "85": "97", "86": "44", "87": "17",
+    "80": "cd", "81": "c", "82": "13", "83": "ec", "84": "5f", "85": "97", "86": "44", "87": "17",
     "88": "c4", "89": "a7", "8a": "7e", "8b": "3d", "8c": "64", "8d": "5d", "8e": "19", "8f": "73",
     "90": "60", "91": "81", "92": "4f", "93": "dc", "94": "22", "95": "2a", "96": "90", "97": "88",
-    "98": "46", "99": "ee", "9a": "b8", "9b": "14", "9c": "de", "9d": "5e", "9e": "0b", "9f": "db",
-    "a0": "e0", "a1": "32", "a2": "3a", "a3": "0a", "a4": "49", "a5": "06", "a6": "24", "a7": "5c",
+    "98": "46", "99": "ee", "9a": "b8", "9b": "14", "9c": "de", "9d": "5e", "9e": "b", "9f": "db",
+    "a0": "e0", "a1": "32", "a2": "3a", "a3": "a", "a4": "49", "a5": "6", "a6": "24", "a7": "5c",
     "a8": "c2", "a9": "d3", "aa": "ac", "ab": "62", "ac": "91", "ad": "95", "ae": "e4", "af": "79",
     "b0": "e7", "b1": "c8", "b2": "37", "b3": "6d", "b4": "8d", "b5": "d5", "b6": "4e", "b7": "a9",
-    "b8": "6c", "b9": "56", "ba": "f4", "bb": "ea", "bc": "65", "bd": "7a", "be": "ae", "bf": "08",
+    "b8": "6c", "b9": "56", "ba": "f4", "bb": "ea", "bc": "65", "bd": "7a", "be": "ae", "bf": "8",
     "c0": "ba", "c1": "78", "c2": "25", "c3": "2e", "c4": "1c", "c5": "a6", "c6": "b4", "c7": "c6",
     "c8": "e8", "c9": "dd", "ca": "74", "cb": "1f", "cc": "4b", "cd": "bd", "ce": "8b", "cf": "8a",
-    "d0": "70", "d1": "3e", "d2": "b5", "d3": "66", "d4": "48", "d5": "03", "d6": "f6", "d7": "0e",
+    "d0": "70", "d1": "3e", "d2": "b5", "d3": "66", "d4": "48", "d5": "3", "d6": "f6", "d7": "e",
     "d8": "61", "d9": "35", "da": "57", "db": "b9", "dc": "86", "dd": "c1", "de": "1d", "df": "9e",
     "e0": "e1", "e1": "f8", "e2": "98", "e3": "11", "e4": "69", "e5": "d9", "e6": "8e", "e7": "94",
     "e8": "9b", "e9": "1e", "ea": "87", "eb": "e9", "ec": "ce", "ed": "55", "ee": "28", "ef": "df",
-    "f0": "8c", "f1": "a1", "f2": "89", "f3": "0d", "f4": "bf", "f5": "e6", "f6": "42", "f7": "68",
-    "f8": "41", "f9": "99", "fa": "2d", "fb": "0f", "fc": "b0", "fd": "54", "fe": "bb", "ff": "16"
+    "f0": "8c", "f1": "a1", "f2": "89", "f3": "d", "f4": "bf", "f5": "e6", "f6": "42", "f7": "68",
+    "f8": "41", "f9": "99", "fa": "2d", "fb": "f", "fc": "b0", "fd": "54", "fe": "bb", "ff": "16"
 }
+
+INVERTED_S_BOX = {value: key for key, value in S_BOX.items()}
+
 
 Rcon = [0x00000000, 0x01000000, 0x02000000,
 		0x04000000, 0x08000000, 0x10000000, 
@@ -105,9 +107,10 @@ def wordHeXOR(word1, int1):
 def key_expansion(key):
     sub_keys = []
     words = []
-    sub_keys.append(key)
+    init_round_key = get_bytes(key)[0]
+    sub_keys.append(init_round_key)
     for i in range(4):
-        words.append(key[i])
+        words.append(init_round_key[i])
 
     for i in range(4, 44):
         temp = words[i-1]
@@ -142,25 +145,25 @@ def KeySubBytes(word):
 # Função de substituição de matriz
 # Recebe a matriz a ser substituida
 # Retorna uma nova matriz com os valores corresppondentes na S_BOX
-def SubBytes(matrix):
+def InvSubBytes(matrix):
     new = []
     for i in range(4):
         column = []
         for j in range(4):
-            column.append(int(S_BOX[hex(matrix[i][j])[2:4]], 16))
+            column.append(int(INVERTED_S_BOX[hex(matrix[i][j])[2:4]], 16))
         new.append(column)
     return new
 
 # Função de mudança de linhas de matriz
 # Recebe uma matriz
 # Retorna uma nova matriz, com as linhas permutadas adequadamente segundo o algoritmo 
-def ShiftRows(matrix):
+def InvShiftRows(matrix):
     new = []
 
-    new.append([matrix[0][0], matrix[1][1], matrix[2][2], matrix[3][3]])
-    new.append([matrix[1][0], matrix[2][1], matrix[3][2], matrix[0][3]])
-    new.append([matrix[2][0], matrix[3][1], matrix[0][2], matrix[1][3]])
-    new.append([matrix[3][0], matrix[0][1], matrix[1][2], matrix[2][3]])
+    new.append([matrix[0][0], matrix[3][1], matrix[2][2], matrix[1][3]])
+    new.append([matrix[1][0], matrix[0][1], matrix[3][2], matrix[2][3]])
+    new.append([matrix[2][0], matrix[1][1], matrix[0][2], matrix[3][3]])
+    new.append([matrix[3][0], matrix[2][1], matrix[1][2], matrix[0][3]])
 
     return new
 
@@ -175,18 +178,32 @@ def gmul(a, b):
         return tmp if a < 128 else tmp ^ 0x1b
     if b == 3:
         return gmul(a, 2) ^ a
+def gmul09(a):
+    return gmul(gmul(gmul(a, 2), 2), 2) ^ a
 
+def gmul11(a):
+    return gmul((gmul(gmul(a, 2), 2) ^ a), 2) ^ a
+
+def gmul13(a):
+    return gmul(gmul((gmul(a, 2) ^ a), 2), 2) ^ a
+
+def gmul14(a):
+    return gmul((gmul((gmul(a, 2) ^ a), 2) ^ a), 2)
 # Função de embaralhamento de colunas
 # Recebe uma matriz
 # Retorna uma nova matriz, com mudanças realizadas por coluna
-def MixColumns(matrix):
+#14 11 13 09
+#09 14 11 13
+#13 09 14 11
+#11 13 09 14
+def InvMixColumns(matrix):
     new = [[], [], [], []]
     
     for i in range(4):
-        new[i].append(gmul(matrix[i][0], 2) ^ gmul(matrix[i][1], 3) ^ gmul(matrix[i][2], 1) ^ gmul(matrix[i][3], 1))
-        new[i].append(gmul(matrix[i][1], 2) ^ gmul(matrix[i][2], 3) ^ gmul(matrix[i][3], 1) ^ gmul(matrix[i][0], 1))
-        new[i].append(gmul(matrix[i][2], 2) ^ gmul(matrix[i][3], 3) ^ gmul(matrix[i][0], 1) ^ gmul(matrix[i][1], 1))
-        new[i].append(gmul(matrix[i][3], 2) ^ gmul(matrix[i][0], 3) ^ gmul(matrix[i][1], 1) ^ gmul(matrix[i][2], 1))
+        new[i].append(gmul14(matrix[i][0]) ^ gmul11(matrix[i][1]) ^ gmul13(matrix[i][2]) ^ gmul09(matrix[i][3]))
+        new[i].append(gmul09(matrix[i][0]) ^ gmul14(matrix[i][1]) ^ gmul11(matrix[i][2]) ^ gmul13(matrix[i][3]))
+        new[i].append(gmul13(matrix[i][0]) ^ gmul09(matrix[i][1]) ^ gmul14(matrix[i][2]) ^ gmul11(matrix[i][3]))
+        new[i].append(gmul11(matrix[i][0]) ^ gmul13(matrix[i][1]) ^ gmul09(matrix[i][2]) ^ gmul14(matrix[i][3]))
 
     return new
 
@@ -194,14 +211,24 @@ def MixColumns(matrix):
 # Função de deciframento
 # Recebe uma matriz 4x4 do texto base e o conjunto de subchaves a ser utilizada
 # retorna uma matriz 4x4 criptografada
-def encrypt(text_matrix, keys):
-    temp = add_round_key(text_matrix, keys[0])
-    for i in range(1, len(keys)):
-        temp = SubBytes(temp)
-        temp = ShiftRows(temp)
-        if i != 10:
-            temp = MixColumns(temp)
-        temp = add_round_key(temp, keys[i])
+def decrypt(text_matrix, keys):
+    for key in keys:
+        print(key)
+    temp = add_round_key(text_matrix, keys[-1])
+    print("After initial round key: ", temp)
+    for i in range(len(keys)-1, 0, -1):
+        print("ROUND ", i)
+        print("Used subkey: ", keys[i-1])
+        temp = InvShiftRows(temp)
+        print("After ShiftRows: ", temp)
+        temp = InvSubBytes(temp)
+        print("After SubBytes: ", temp)
+        temp = add_round_key(temp, keys[i-1])
+        print("After addRoundKey: ", temp)
+        if i != 1:
+            temp = InvMixColumns(temp)
+            print("After MixColumns: ", temp)
+        
     return temp
 
 # Função de conversão em texto
@@ -215,27 +242,31 @@ def to_text(matrixes):
                 s += chr(matrix[i][j])
     return s
 
+encripted = [[]]
 
-text = input("plain text: ")
+# for i in range(4):
+#     row = []
+#     for j in range(4):
+#         n = int(input("Componente do texto:"))
+#         row.append(n)
+#     encripted[0].append(row)
 
-key = []
-for i in range(4):
-    row = []
-    for j in range(4):
-        n = random.randint(0,256)
-        row.append(n)
-    key.append(row)
+encripted = [[[91, 177, 3, 134], [83, 221, 167, 17], [139, 41, 112, 136], [9, 217, 36, 46]]]
+
+# key = input("key: ")
+# while len(key) != 16:
+#     key = input("key (128 bits / 16 caracteres): ")
+
+key = "abcdefghijklmnop"
 
 keys = key_expansion(key)
 # for key in keys:
 #     print("Sub-chave: ", key)
 
-text = get_bytes(text)
+# text = get_bytes(text)
 
 results = []
-for i in range(len(text)):
-    results.append(encrypt(text[i], keys))
+for i in range(len(encripted)):
+    results.append(decrypt(encripted[i], keys))
 
-print("Chave gerada utilizada: ", key)
-print("Resultado da encriptação como matriz de inteiros: " , results)
-print("Resultado preliminar de texto encriptado: " , to_text(results))
+print(results)
